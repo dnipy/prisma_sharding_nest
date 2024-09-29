@@ -1,0 +1,16 @@
+// /prisma/shard2/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../client/shard2" // Adjust the path as necessary
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_WRITE_SHARD2") // Use this for write operations
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+}

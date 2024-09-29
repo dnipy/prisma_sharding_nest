@@ -1,0 +1,16 @@
+// /prisma/shard1/schema_read.prisma
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../client/shard1_read" // Adjust the path as necessary
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_READ_SHARD1") // Use this for read operations
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+}

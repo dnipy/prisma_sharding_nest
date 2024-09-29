@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres_shard1:
+    image: postgres:latest
+    networks:
+      - app-network
+    environment:
+      POSTGRES_USER: user1
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_db_shard1
+      POSTGRES_HOST: postgres_shard1
+    ports:
+      - '5433:5432'
+
+  postgres_shard2:
+    image: postgres:latest
+    networks:
+      - app-network
+    environment:
+      POSTGRES_USER: user2
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_db_shard2
+      POSTGRES_HOST: postgres_shard2
+    ports:
+      - '5434:5432'
+
+  app:
+    networks:
+      - app-network
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres_shard1
+      - postgres_shard2
+    environment:
+      DATABASE_URL_WRITE_SHARD1: postgres://user1:password@postgres_shard1:5432/my_db_shard1
+      DATABASE_URL_READ_SHARD1: postgres://user1:password@postgres_shard1:5432/my_db_shard1
+      DATABASE_URL_WRITE_SHARD2: postgres://user2:password@postgres_shard2:5432/my_db_shard2
+      DATABASE_URL_READ_SHARD2: postgres://user2:password@postgres_shard2:5432/my_db_shard2
+    volumes:
+      - .:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+
+volumes:
+  node_modules:
+
+networks:
+  app-network:
+    driver: bridge
